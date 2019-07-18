@@ -1,25 +1,9 @@
- 
- 
- /** RF24Mesh_Example_Master.ino by TMRh20
-  * 
-  *
-  * This example sketch shows how to manually configure a node via RF24Mesh as a master node, which
-  * will receive all data from sensor nodes.
-  *
-  * The nodes can change physical or logical position in the network, and reconnect through different
-  * routing nodes as required. The master node manages the address assignments for the individual nodes
-  * in a manner similar to DHCP.
-  *
-  */
-  
-  
 #include "RF24Network.h"
 #include "RF24.h"
 #include "RF24Mesh.h"
 #include <SPI.h>
 //Include eeprom.h for AVR (Uno, Nano) etc. except ATTiny
 #include <EEPROM.h>
-
 
 //#define LED_PIN      7
 #define SIGNAL_PIN   6
@@ -32,9 +16,9 @@ RF24Mesh mesh(radio,network);
 
 uint32_t displayTimer = 0;
 struct Data {
-  unsigned long theTime;
   uint8_t id;
-  unsigned long randNumber;
+  unsigned long theTime;
+  float theValue;
 };
 Data data;
 
@@ -43,12 +27,12 @@ void setup() {
   pinMode(SIGNAL_PIN, OUTPUT);
   // Set the nodeID to 0 for the master node
   mesh.setNodeID(0);
-  Serial.println(mesh.getNodeID());
+  //Serial.println(mesh.getNodeID());
   // Connect to the mesh
   mesh.begin();
-
-
-
+  //mesh.setStaticAddress(1, 01);
+  //mesh.setStaticAddress(2, 011);
+  //mesh.setStaticAddress(3, 0111);
 }
 
 
@@ -64,21 +48,27 @@ void loop() {
   
   // Check for incoming data from the sensors
   if(network.available()){
-    digitalWrite(SIGNAL_PIN,HIGH);
-    delay(50);
-    digitalWrite(SIGNAL_PIN, LOW);    
-    delay(50);
+    //digitalWrite(SIGNAL_PIN,HIGH);
+    //delay(50);
+    //digitalWrite(SIGNAL_PIN, LOW);    
+    //delay(50);
     RF24NetworkHeader header;
     network.peek(header);
     switch(header.type){
       case 'M': 
-        network.read(header,&data,sizeof(data)); 
-        Serial.print(data.theTime); Serial.print(" ");
-        Serial.print(data.id); Serial.print(" "); 
-        Serial.println(data.randNumber); 
+        network.read(header,&data,sizeof(data));
+        //Serial.print(header.from_node); Serial.print(" "); 
+        //Serial.print(header.to_node); Serial.print(" ");
+        //Serial.print(header.id); Serial.println("");
+        Serial.print (long(data.id));
+        Serial.print(","); 
+        Serial.print(data.theTime/1000);
+        Serial.print(",");
+        Serial.println(data.theValue); 
+        
         break;
       default: network.read(header,0,0); 
-        Serial.print("default");Serial.println(header.type);
+        //Serial.print("default");Serial.println(header.type);
         break;
     }
   }
@@ -95,4 +85,4 @@ void loop() {
      }
     Serial.println(F("**********************************"));
   }
-}
+}  
