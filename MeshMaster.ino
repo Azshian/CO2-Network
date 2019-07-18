@@ -5,9 +5,7 @@
 //Include eeprom.h for AVR (Uno, Nano) etc. except ATTiny
 #include <EEPROM.h>
 
-//#define LED_PIN      7
 #define SIGNAL_PIN   6
-//#define RESET_BUTTON 5
 
 /***** Configure the chosen CE,CS pins *****/
 RF24 radio(8,10);
@@ -15,6 +13,7 @@ RF24Network network(radio);
 RF24Mesh mesh(radio,network);
 
 uint32_t displayTimer = 0;
+
 struct Data {
   uint8_t id;
   unsigned long theTime;
@@ -25,14 +24,9 @@ Data data;
 void setup() {
   Serial.begin(9600);
   pinMode(SIGNAL_PIN, OUTPUT);
-  // Set the nodeID to 0 for the master node
-  mesh.setNodeID(0);
+  mesh.setNodeID(0);  // Set the nodeID to 0 for the master node
+  mesh.begin();  // Connect to the mesh
   //Serial.println(mesh.getNodeID());
-  // Connect to the mesh
-  mesh.begin();
-  //mesh.setStaticAddress(1, 01);
-  //mesh.setStaticAddress(2, 011);
-  //mesh.setStaticAddress(3, 0111);
 }
 
 
